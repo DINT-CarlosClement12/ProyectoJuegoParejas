@@ -32,6 +32,8 @@ namespace ProyectoJuegoParejas
         Brush DEFAULT_CARD_BRUSH = Brushes.Gainsboro; // change solid color to fade
 
         public bool onDelay = false;
+        public bool surrendered = false;
+        public int numMovements = 0;
 
         CardComparer comparingCards = new CardComparer();
 
@@ -42,6 +44,8 @@ namespace ProyectoJuegoParejas
 
         private void DrawGame(int totalPlayingCards)
         {
+            surrendered = false;
+            numMovements = 0;
             ResetComparison();
             gameGrid.Children.Clear();
 
@@ -52,6 +56,7 @@ namespace ProyectoJuegoParejas
                 Margin = new Thickness(50, 0, 10, 0),
                 Content = "Mostrar"
             };
+            giveUpButton.Click += ShowAnswer_Click;
             DockPanel.SetDock(giveUpButton, Dock.Right);
 
             ((DockPanel)giveUpBorder.Child).Children.Add(giveUpButton);
@@ -138,50 +143,68 @@ namespace ProyectoJuegoParejas
             }
         }
 
+        private void ShowAnswer_Click(object sender, RoutedEventArgs e)
+        {
+            if (!onDelay || !onDelay)
+            {
+                foreach (Border c in gameGrid.Children)
+                    ((TextBlock)((Viewbox)c.Child).Child).Text = ((TextBlock)((Viewbox)c.Child).Child).Tag.ToString();
+                surrendered = true;
+                if(comparingCards.card1 != null)
+                    ((Border)((Viewbox)comparingCards.card1.Parent).Parent).Background = DEFAULT_CARD_BRUSH;
+            }
+        }
+
         private void FlipCard(object sender, RoutedEventArgs e)
         {
-            if (comparingCards.card1 == null || comparingCards.card2 == null)
+            if(!surrendered)
             {
-                Border selectedObjectBorder = (Border)sender;
-                Viewbox selectedViewbox = (Viewbox)selectedObjectBorder.Child;
-                TextBlock selectedTextBlock = (TextBlock)selectedViewbox.Child;
-
-                selectedObjectBorder.Background = Brushes.White;
-                selectedTextBlock.Text = selectedTextBlock.Tag.ToString();
-
-                if (comparingCards.card1 != null)
+                numMovements++;
+                if (comparingCards.card1 == null || comparingCards.card2 == null)
                 {
-                    comparingCards.card2 = selectedTextBlock;
+                    Border selectedObjectBorder = (Border)sender;
+                    Viewbox selectedViewbox = (Viewbox)selectedObjectBorder.Child;
+                    TextBlock selectedTextBlock = (TextBlock)selectedViewbox.Child;
 
-                    if (comparingCards.card1.Tag.ToString() != comparingCards.card2.Tag.ToString())
+                    selectedObjectBorder.Background = Brushes.White;
+                    selectedTextBlock.Text = selectedTextBlock.Tag.ToString();
+
+                    if (comparingCards.card1 != null)
                     {
+                        comparingCards.card2 = selectedTextBlock;
 
-                        DispatcherTimer timer = new DispatcherTimer();
-                        timer.IsEnabled = false;
-                        timer.Interval = TimeSpan.FromMilliseconds(1000);
-
-                        int delaySeconds = 2;
-                        onDelay = true;
-                        timer.Start();
-                        timer.Tick += delegate
+                        if (comparingCards.card1.Tag.ToString() != comparingCards.card2.Tag.ToString())
                         {
-                            delaySeconds--;
-                            if (delaySeconds == 0)
+
+                            DispatcherTimer timer = new DispatcherTimer();
+                            timer.IsEnabled = false;
+                            timer.Interval = TimeSpan.FromMilliseconds(1000);
+
+                            int delaySeconds = 2;
+                            onDelay = true;
+                            timer.Start();
+                            timer.Tick += delegate
                             {
-                                timer.Stop();
-                                UnflipCards();
-                                onDelay = false;
-                            }
-                        };
+                                delaySeconds--;
+                                if (delaySeconds == 0)
+                                {
+                                    timer.Stop();
+                                    UnflipCards();
+                                    onDelay = false;
+                                }
+                            };
+                        }
+                        else
+                        {
+                            CheckState();
+                            ResetComparison();
+                        }
                     }
                     else
-                    {
-                        CheckState();
-                        ResetComparison();
-                    }
+                        comparingCards.card1 = selectedTextBlock;
                 }
                 else
-                    comparingCards.card1 = selectedTextBlock;
+                    numMovements--;
             }
         }
 
@@ -220,6 +243,10 @@ namespace ProyectoJuegoParejas
                     }
                     return c is ProgressBar;
                 });
+            if(numIncorrect <= 0)
+            {
+                MessageBox.Show($"Felicidades, has completado el nivel en {numMovements/2} movimientos", "Memo te felicita");
+            }
         }
 
         private void InitButton_Click(object sender, RoutedEventArgs e)
