@@ -42,6 +42,28 @@ namespace ProyectoJuegoParejas
         {
             ResetComparison();
             gameGrid.Children.Clear();
+
+            ((DockPanel)giveUpBorder.Child).Children.Clear();
+            Button giveUpButton = new Button()
+            {
+                Name = "giveUpButton",
+                Margin = new Thickness(50, 0, 10, 0),
+                Content = "Mostrar"
+            };
+            DockPanel.SetDock(giveUpButton, Dock.Right);
+
+            ((DockPanel)giveUpBorder.Child).Children.Add(giveUpButton);
+            ProgressBar gameProgress = new ProgressBar()
+            {
+                Minimum = 0,
+                Maximum = 1,
+                Value = 0,
+                BorderThickness = new Thickness(5),
+                Margin = new Thickness(5)
+            };
+            DockPanel.SetDock(gameProgress, Dock.Left);
+            ((DockPanel)giveUpBorder.Child).Children.Add(gameProgress);
+
             int columnLength = (int)Math.Sqrt(totalPlayingCards);
 
             List<char> randomCharacters = new List<char>();
@@ -58,14 +80,21 @@ namespace ProyectoJuegoParejas
                     randomCharacters.Add(actualChar);
             }
 
+            gameGrid.RowDefinitions.Clear();
+            gameGrid.ColumnDefinitions.Clear();
+
             for (int i = 0; i < columnLength; i++)
             {
-                RowDefinition rowDefinition = new RowDefinition();
-                rowDefinition.Height = new GridLength(1, GridUnitType.Star);
+                RowDefinition rowDefinition = new RowDefinition
+                {
+                    Height = new GridLength(1, GridUnitType.Star)
+                };
                 gameGrid.RowDefinitions.Add(rowDefinition);
 
-                ColumnDefinition columnDefinition = new ColumnDefinition();
-                columnDefinition.Width = new GridLength(1, GridUnitType.Star);
+                ColumnDefinition columnDefinition = new ColumnDefinition
+                {
+                    Width = new GridLength(1, GridUnitType.Star)
+                };
                 gameGrid.ColumnDefinitions.Add(columnDefinition);
 
                 for (int j = 0; j < columnLength; j++)
@@ -86,6 +115,7 @@ namespace ProyectoJuegoParejas
 
                     Border border = new Border
                     {
+                        Tag = false,
                         Background = DEFAULT_CARD_BRUSH,
                         Margin = new Thickness(5),
                         BorderBrush = Brushes.Black,
@@ -141,7 +171,10 @@ namespace ProyectoJuegoParejas
                         };
                     }
                     else
+                    {
+                        CheckState();
                         ResetComparison();
+                    }
                 }
                 else
                     comparingCards.card1 = selectedTextBlock;
@@ -163,6 +196,26 @@ namespace ProyectoJuegoParejas
         {
             comparingCards.card1 = null;
             comparingCards.card2 = null;
+        }
+
+        private void CheckState()
+        {
+            ((Border)((Viewbox)comparingCards.card1.Parent).Parent).Tag = true;
+            ((Border)((Viewbox)comparingCards.card2.Parent).Parent).Tag = true;
+
+            int numCorrect = gameGrid.Children.Cast<Border>().Count(i => (bool)i.Tag);
+            int numIncorrect = gameGrid.Children.Cast<Border>().Count(i => !(bool)i.Tag);
+
+            ((DockPanel)(giveUpBorder).Child).Children
+                .Cast<Control>()
+                .Single(c =>
+                {
+                    if (c is ProgressBar)
+                    {
+                        ((ProgressBar)c).Value = (double)numCorrect / (numIncorrect + numCorrect);
+                    }
+                    return c is ProgressBar;
+                });
         }
 
         private void InitButton_Click(object sender, RoutedEventArgs e)
