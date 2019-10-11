@@ -31,6 +31,8 @@ namespace ProyectoJuegoParejas
         const char INTERROGATION_SIGN = 's';
         Brush DEFAULT_CARD_BRUSH = Brushes.Gainsboro; // change solid color to fade
 
+        public bool onDelay = false;
+
         CardComparer comparingCards = new CardComparer();
 
         public MainWindow()
@@ -159,6 +161,7 @@ namespace ProyectoJuegoParejas
                         timer.Interval = TimeSpan.FromMilliseconds(1000);
 
                         int delaySeconds = 2;
+                        onDelay = true;
                         timer.Start();
                         timer.Tick += delegate
                         {
@@ -167,6 +170,7 @@ namespace ProyectoJuegoParejas
                             {
                                 timer.Stop();
                                 UnflipCards();
+                                onDelay = false;
                             }
                         };
                     }
@@ -220,8 +224,11 @@ namespace ProyectoJuegoParejas
 
         private void InitButton_Click(object sender, RoutedEventArgs e)
         {
-            RadioButton radioButtonSelected = radioButtonContainer.Children.Cast<RadioButton>().Single(r => r.IsChecked == true);
-            DrawGame((int)Math.Pow(double.Parse(radioButtonSelected.Tag.ToString()), 2));
+            if (!onDelay)
+            {
+                RadioButton radioButtonSelected = radioButtonContainer.Children.Cast<RadioButton>().Single(r => r.IsChecked == true);
+                DrawGame((int)Math.Pow(double.Parse(radioButtonSelected.Tag.ToString()), 2));
+            }
         }
     }
 }

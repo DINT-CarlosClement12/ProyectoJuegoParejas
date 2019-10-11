@@ -4,6 +4,20 @@
              xmlns:local="clr-namespace:ProyectoJuegoParejas"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <Style TargetType="{x:Type Button}">
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="5"
+                              ShadowDepth="5"
+                              RenderingBias="Quality"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="{x:Type TextBlock}">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontFamily" Value="Comic Sans MS" />
+            <Setter Property="FontStyle" Value="Normal" />
+        </Style>
     </Application.Resources>
 </Application>
