@@ -48,8 +48,11 @@ namespace ProyectoJuegoParejas
                     Grid.SetColumn(img, j);
                     gameGrid.Children.Add(img);*/
                     TextBlock txtBlock = new TextBlock();
-                    txtBlock.FontFamily = 
-                    txtBlock.Text = "c";
+                    txtBlock.FontFamily = new FontFamily("Webdings");
+                    txtBlock.Text = "l";
+                    Grid.SetRow(txtBlock, i);
+                    Grid.SetColumn(txtBlock, j);
+                    gameGrid.Children.Add(txtBlock);
                 }
             }
         }
