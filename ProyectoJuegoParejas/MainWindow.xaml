@@ -6,7 +6,46 @@
         xmlns:local="clr-namespace:ProyectoJuegoParejas"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
-    </Grid>
+    <DockPanel Background="BlanchedAlmond" LastChildFill="False">
+        <Border DockPanel.Dock="Top" Margin="5" BorderBrush="Black" BorderThickness="4" CornerRadius="5" Background="White">
+            <WrapPanel Margin="5">
+                <TextBlock>Dificultad:</TextBlock>
+                <DockPanel Margin="10,0,50,0">
+                    <RadioButton GroupName="difficultySelection" Margin="5,0,5,0">Baja</RadioButton>
+                    <RadioButton GroupName="difficultySelection" Margin="5,0,5,0">Media</RadioButton>
+                    <RadioButton GroupName="difficultySelection" Margin="5,0,5,0">Alta</RadioButton>
+                </DockPanel>
+                <Button>Iniciar</Button>
+            </WrapPanel>
+        </Border>
+
+        <Border DockPanel.Dock="Bottom"  Margin="5" BorderBrush="Black" BorderThickness="4" CornerRadius="5" Background="White">
+            <WrapPanel>
+                <TextBlock>Dificultad:</TextBlock>
+            </WrapPanel>
+        </Border>
+
+        <Grid x:Name="gameGrid" DockPanel.Dock="Top">
+            <Grid.RowDefinitions>
+                <!--<RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>-->
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <!--<ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>-->
+            </Grid.ColumnDefinitions>
+
+            <!--<Image Grid.Row="0" Grid.Column="0" Source="angel.png"></Image>
+            <Image Grid.Row="0" Grid.Column="1" Source="angel.png"></Image>
+            <Image Grid.Row="0" Grid.Column="2" Source="angel.png"></Image>
+            <Image Grid.Row="1" Grid.Column="0" Source="angel.png"></Image>
+            <Image Grid.Row="1" Grid.Column="1" Source="angel.png"></Image>
+            <Image Grid.Row="1" Grid.Column="2" Source="angel.png"></Image>
+            <Image Grid.Row="2" Grid.Column="0" Source="angel.png"></Image>
+            <Image Grid.Row="2" Grid.Column="1" Source="angel.png"></Image>
+            <Image Grid.Row="2" Grid.Column="2" Source="angel.png"></Image>-->
+        </Grid>
+    </DockPanel>
 </Window>
