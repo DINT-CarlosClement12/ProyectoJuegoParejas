@@ -29,7 +29,7 @@ namespace ProyectoJuegoParejas
 
         const int NUM_POSSIBLE_REPETITIONS = 2;
         const char INTERROGATION_SIGN = 's';
-        Brush DEFAULT_CARD_BRUSH = Brushes.Gainsboro; // change solid color to fade
+        LinearGradientBrush DEFAULT_CARD_BRUSH = new LinearGradientBrush(Colors.CadetBlue, Colors.White, new Point(0, 1), new Point(0, 0));
 
         public bool onDelay = false;
         public bool surrendered = false;
