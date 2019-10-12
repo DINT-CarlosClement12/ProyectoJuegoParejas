@@ -4,6 +4,7 @@
              xmlns:local="clr-namespace:ProyectoJuegoParejas"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
+        
         <Style TargetType="{x:Type Button}">
             <Setter Property="Effect">
                 <Setter.Value>
@@ -14,10 +15,23 @@
             </Setter>
         </Style>
 
+        <Style TargetType="{x:Type RadioButton}">
+            <Setter Property="GroupName" Value="difficultySelection"/>
+            <Setter Property="Margin" Value="5,0,5,0"/>
+        </Style>
+
         <Style TargetType="{x:Type TextBlock}">
             <Setter Property="FontSize" Value="14" />
             <Setter Property="FontFamily" Value="Comic Sans MS" />
             <Setter Property="FontStyle" Value="Normal" />
         </Style>
+
+        <Style x:Key="PlayingCard" TargetType="{x:Type Border}">
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="BorderBrush" Value="Black"/>
+            <Setter Property="BorderThickness" Value="5"/>
+            <Setter Property="CornerRadius" Value="5"/>
+        </Style>
+
     </Application.Resources>
 </Application>
