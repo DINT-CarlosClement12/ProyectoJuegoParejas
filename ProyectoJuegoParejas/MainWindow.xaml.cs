@@ -11,31 +11,60 @@ namespace ProyectoJuegoParejas
     public partial class MainWindow : Window
     {
         const int NUM_POSSIBLE_REPETITIONS = 2; // Number of cards of the same type
-        const char INTERROGATION_SIGN = 's';    // Interrogation sign in "Webdings"
-        LinearGradientBrush DEFAULT_CARD_BRUSH = new LinearGradientBrush(Colors.CadetBlue, Colors.White, new Point(0, 1), new Point(0, 0)); // Cards reverse color
 
         public bool onDelay = false;    // When two distinct cards are flipped
         public bool quit = false;    // When player give up
         public int numMovements = 0;    // Count player movements
+        internal Board gameBoard = new Board(); // Storage data
 
-        CardComparer comparingCards = new CardComparer();   // Card comparator
+        ProgressBar currentProgress;
 
         public MainWindow()
         {
             InitializeComponent();
+#if DEBUG
+            debugDifficultyRadioButton.Visibility = Visibility.Visible;
+#endif
+            currentProgress = AddControls();
         }
-
+        
         private void DrawGame(int totalPlayingCards)    // Initialize the game 
         {
-            // Reset game each time that we draw the scene
+            ResetGame();
+
+            // Determine the characters of each card
+            int columnLength = (int)Math.Sqrt(totalPlayingCards);   // Calculus based on how many cards are going to be in the scene
+
+            List<char> randomCharacters = new List<char>();
+            Random rnd = new Random();
+            for (int i = 0; i < columnLength * columnLength / NUM_POSSIBLE_REPETITIONS; i++)
+            {
+                char actualChar = rnd.Next(0, 2) == 0 ? (char)rnd.Next('A', 'Z') : (char)rnd.Next('a', 'z');    // 49 possible characters ('s' doesn't count)
+                if (randomCharacters.Contains(actualChar) || actualChar == Board.INTERROGATION_SIGN)
+                {
+                    i--;        // If random character is already inside the List 
+                    continue;   //  we go back one in the loop   
+                }
+                for (int j = 0; j < NUM_POSSIBLE_REPETITIONS; j++)  // Add character to the list as many times as repetitions
+                    randomCharacters.Add(actualChar);
+            }
+
+            gameBoard.RenderBoard(this, gameGrid, columnLength, randomCharacters);
+        }
+
+        private void ResetGame()    // Reset game each time that we draw the scene 
+        {
             quit = false;
             numMovements = 0;
             ResetComparison();
             gameGrid.Children.Clear();
             gameGrid.RowDefinitions.Clear();
             gameGrid.ColumnDefinitions.Clear();
+            currentProgress.Value = 0;
+        }
 
-            // Set common controls to the scene
+        private ProgressBar AddControls()  // Set common controls to the scene 
+        {
             ((DockPanel)giveUpBorder.Child).Children.Clear();
             Button giveUpButton = new Button()
             {
@@ -58,182 +87,109 @@ namespace ProyectoJuegoParejas
             DockPanel.SetDock(gameProgress, Dock.Left);
             ((DockPanel)giveUpBorder.Child).Children.Add(gameProgress);
 
-            // Determine the characters of each card
-            int columnLength = (int)Math.Sqrt(totalPlayingCards);   // Calculus based on how many cards are going to be in the scene
-
-            List<char> randomCharacters = new List<char>();
-            Random rnd = new Random();
-            for (int i = 0; i < columnLength * columnLength / NUM_POSSIBLE_REPETITIONS; i++)
-            {
-                char actualChar = (char)rnd.Next('A', 'Z');
-                if (randomCharacters.Contains(actualChar))
-                {
-                    i--;        // If random character is already inside the List 
-                    continue;   //  we go back one in the loop   
-                }
-                for (int j = 0; j < NUM_POSSIBLE_REPETITIONS; j++)  // Add character to the list as many times as repetitions
-                    randomCharacters.Add(actualChar);
-            }
-
-            // Set playing cards to the scene
-            for (int i = 0; i < columnLength; i++)
-            {
-                RowDefinition rowDefinition = new RowDefinition
-                {
-                    Height = new GridLength(1, GridUnitType.Star)
-                };
-                gameGrid.RowDefinitions.Add(rowDefinition);
-
-                ColumnDefinition columnDefinition = new ColumnDefinition
-                {
-                    Width = new GridLength(1, GridUnitType.Star)
-                };
-                gameGrid.ColumnDefinitions.Add(columnDefinition);
-
-                for (int j = 0; j < columnLength; j++)
-                {
-                    Border border = CreatePlayingCard(randomCharacters, rnd);
-
-                    Grid.SetRow(border, i);
-                    Grid.SetColumn(border, j);
-
-                    gameGrid.Children.Add(border);
-                }
-            }
-        }
-
-        private Border CreatePlayingCard(List<char> randomCharacters, Random rnd)   // Initialize gaming card controls schema
-        {
-            int currentIndexChar = rnd.Next(0, randomCharacters.Count - 1);
-
-            TextBlock frontCard = new TextBlock // Where character sign is going to be draw 
-            {
-                FontFamily = new FontFamily("Webdings"),
-                Tag = randomCharacters[currentIndexChar].ToString(),    // The value of the playing card
-                Text = INTERROGATION_SIGN.ToString()
-            };
-            Viewbox viewbox = new Viewbox   // To adjust font size of the TextBlock 
-            {
-                Child = frontCard
-            };
-            Border border = new Border  // To get color to background of the playing card. Flag indicates if that card is flipped and discovered it's twin 
-            {
-                Style = FindResource("PlayingCard") as Style,
-                Tag = false,
-                Background = DEFAULT_CARD_BRUSH,
-                Child = viewbox
-            };
-
-            border.MouseDown += FlipCard;   // Attach event to method
-
-            randomCharacters.RemoveAt(currentIndexChar);    // Removes the drawn character
-
-            return border;
+            return gameProgress;
         }
 
         private void ShowAnswer_Click(object sender, RoutedEventArgs e) // Controls give up option 
         {
             if (!onDelay)   // If we are on delay we cannot surrender
             {
-                foreach (Border c in gameGrid.Children)
-                    ((TextBlock)((Viewbox)c.Child).Child).Text = ((TextBlock)((Viewbox)c.Child).Child).Tag.ToString();  // Turn every text in TextBlock into it's tag
+                foreach (PlayingCard playingCard in gameBoard)
+                    playingCard.FrontCard.Text = playingCard.ToString();
                 quit = true;
-                if(comparingCards.card1 != null)
-                    comparingCards.GetBorderCard1().Background = DEFAULT_CARD_BRUSH;    // Reset playing card color when only one playing card is flipped
+                if (gameBoard.ComparingCard1 != null)
+                    gameBoard.ComparingCard1.Border.Background = Board.DEFAULT_CARD_BRUSH;
             }
         }
 
-        private void FlipCard(object sender, RoutedEventArgs e) // Shows the playing card value 
+        public void FlipCard(object sender, RoutedEventArgs e) // Shows the playing card value 
         {
-            if(!quit || !onDelay)    
+            if(!quit && !onDelay)    
             {
                 numMovements++;
-                if (comparingCards.card1 == null || comparingCards.card2 == null)
+                if (gameBoard.ComparingCard1 == null || gameBoard.ComparingCard2 == null)
                 {
-                    Border selectedObjectBorder = (Border)sender;
-                    Viewbox selectedViewbox = (Viewbox)selectedObjectBorder.Child;
-                    TextBlock selectedTextBlock = (TextBlock)selectedViewbox.Child;
+                    PlayingCard selectedPlayingCard = gameBoard[(Border)sender];
 
-                    selectedObjectBorder.Background = Brushes.White;
-                    selectedTextBlock.Text = selectedTextBlock.Tag.ToString();
-
-                    if (comparingCards.card1 != null)
+                    selectedPlayingCard.Border.Background = Brushes.White;
+                    selectedPlayingCard.FrontCard.Text = selectedPlayingCard.FrontCard.Tag.ToString();
+                    if (!selectedPlayingCard.IsFlipped)
                     {
-                        comparingCards.card2 = selectedTextBlock;
-
-                        if (comparingCards.card1.Tag.ToString() != comparingCards.card2.Tag.ToString())
+                        if (gameBoard.ComparingCard1 != null && gameBoard.ComparingCard1 != selectedPlayingCard)
                         {
-                            int delaySeconds = 1;
-                            onDelay = true;
-                            DispatcherTimer timer = new DispatcherTimer
+                            gameBoard.ComparingCard2 = selectedPlayingCard;
+
+                            if (gameBoard.ComparingCard1.FrontCard.Tag.ToString() != gameBoard.ComparingCard2.FrontCard.Tag.ToString())
                             {
-                                IsEnabled = false,
-                                Interval = TimeSpan.FromMilliseconds(1000)
-                            };
-                            timer.Tick += delegate
-                            {
-                                delaySeconds--;
-                                if (delaySeconds == 0 || onDelay == false)
+                                int delaySeconds = 1;
+                                onDelay = true;
+                                DispatcherTimer timer = new DispatcherTimer
                                 {
-                                    timer.Stop();
-                                    UnflipCards();  // Timer ended and playing cards flip again
+                                    IsEnabled = false,
+                                    Interval = TimeSpan.FromMilliseconds(1000)
+                                };
+                                timer.Tick += delegate
+                                {
+                                    delaySeconds--;
+                                    if (delaySeconds == 0 || onDelay == false)
+                                    {
+                                        timer.Stop();
+                                        UnflipCards();  // Timer ended and playing cards flip again
                                     onDelay = false;
-                                }
-                            };
-                            timer.Start();
+                                    }
+                                };
+                                timer.Start();
+                            }
+                            else
+                            {
+                                CheckState();
+                                ResetComparison();
+                            }
                         }
                         else
-                        {
-                            CheckState();
-                            ResetComparison();
-                        }
+                            gameBoard.ComparingCard1 = selectedPlayingCard;
                     }
-                    else
-                        comparingCards.card1 = selectedTextBlock;
                 }
             }
         }
 
         private void UnflipCards()  // Resets flipped cards into its default values 
         {
-            comparingCards.card1.Text = INTERROGATION_SIGN.ToString();
-            comparingCards.GetBorderCard1().Background = DEFAULT_CARD_BRUSH;
+            gameBoard.ComparingCard1.FrontCard.Text = Board.INTERROGATION_SIGN.ToString();
+            gameBoard.ComparingCard1.Border.Background = Board.DEFAULT_CARD_BRUSH;
 
-            comparingCards.card2.Text = INTERROGATION_SIGN.ToString();
-            comparingCards.GetBorderCard2().Background = DEFAULT_CARD_BRUSH;
+            gameBoard.ComparingCard2.FrontCard.Text = Board.INTERROGATION_SIGN.ToString();
+            gameBoard.ComparingCard2.Border.Background = Board.DEFAULT_CARD_BRUSH;
 
             ResetComparison();
         }
 
         private void ResetComparison()  // Reset the CardComparer 
         {
-            comparingCards = new CardComparer(null, null);
+            gameBoard.ComparingCard1 = null;
+            gameBoard.ComparingCard2 = null;
         }
 
         private void CheckState()   // Evaluate game state and set flipped twin playing cards into true 
         {
-            comparingCards.GetBorderCard1().Tag = true;
-            comparingCards.GetBorderCard2().Tag = true;
+            gameBoard.ComparingCard1.IsFlipped = true;
+            gameBoard.ComparingCard2.IsFlipped = true;
 
             int numIncorrect = 0;
-            int numCorrect = gameGrid.Children
-                .Cast<Border>()
-                .Count(b =>
+            int numCorrect = gameBoard.Count(c =>
+            {
+                if (c.IsFlipped)
+                    return true;
+                else
                 {
-                    if(!(bool)b.Tag)
-                        numIncorrect++;
-                    return (bool)b.Tag;
-                });
+                    numIncorrect++;
+                    return false;
+                }
+            });
 
-            ((DockPanel)giveUpBorder.Child).Children
-                .Cast<Control>()
-                .Single(c =>
-                {
-                    if (c is ProgressBar)
-                        ((ProgressBar)c).Value = (double)numCorrect / (numIncorrect + numCorrect);  // Set value of the progress 
-                    return c is ProgressBar;
-                });
-            if(numIncorrect <= 0)   // End game
+            currentProgress.Value = (double)numCorrect / (numIncorrect + numCorrect);  // Set value of the progress
+
+            if (numIncorrect <= 0)   // End game
                 MessageBox.Show($"Felicidades, has completado el nivel en {numMovements / 2} movimientos", "Memo te felicita");
         }
 
