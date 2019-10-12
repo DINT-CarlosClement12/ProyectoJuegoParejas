@@ -15,7 +15,7 @@ namespace ProyectoJuegoParejas
         public bool onDelay = false;    // When two distinct cards are flipped
         public bool quit = false;    // When player give up
         public int numMovements = 0;    // Count player movements
-        internal Board gameBoard = new Board(); // Storage data
+        internal Board board = new Board(); // Storage data
 
         ProgressBar currentProgress;
 
@@ -32,9 +32,12 @@ namespace ProyectoJuegoParejas
         {
             ResetGame();
 
-            // Determine the characters of each card
             int columnLength = (int)Math.Sqrt(totalPlayingCards);   // Calculus based on how many cards are going to be in the scene
+            board.RenderBoard(this, gameGrid, GenerateCardCharacters(columnLength));
+        }
 
+        private List<char> GenerateCardCharacters(int columnLength)   // Generates the signs of the playing cards 
+        {
             List<char> randomCharacters = new List<char>();
             Random rnd = new Random();
             for (int i = 0; i < columnLength * columnLength / NUM_POSSIBLE_REPETITIONS; i++)
@@ -42,16 +45,15 @@ namespace ProyectoJuegoParejas
                 char actualChar = rnd.Next(0, 2) == 0 ? (char)rnd.Next('A', 'Z') : (char)rnd.Next('a', 'z');    // 49 possible characters ('s' doesn't count)
                 if (randomCharacters.Contains(actualChar) || actualChar == Board.INTERROGATION_SIGN)
                 {
-                    i--;        // If random character is already inside the List 
-                    continue;   //  we go back one in the loop   
+                    i--;        // _ If random character is already inside
+                    continue;   // |_   or is 's', move back one
                 }
                 for (int j = 0; j < NUM_POSSIBLE_REPETITIONS; j++)  // Add character to the list as many times as repetitions
                     randomCharacters.Add(actualChar);
             }
-
-            gameBoard.RenderBoard(this, gameGrid, columnLength, randomCharacters);
+            return randomCharacters;
         }
-
+            
         private void ResetGame()    // Reset game each time that we draw the scene 
         {
             quit = false;
@@ -94,11 +96,11 @@ namespace ProyectoJuegoParejas
         {
             if (!onDelay)   // If we are on delay we cannot surrender
             {
-                foreach (PlayingCard playingCard in gameBoard)
-                    playingCard.FrontCard.Text = playingCard.ToString();
                 quit = true;
-                if (gameBoard.ComparingCard1 != null)
-                    gameBoard.ComparingCard1.Border.Background = Board.DEFAULT_CARD_BRUSH;
+                foreach (PlayingCard playingCard in board)
+                    playingCard.FrontCard.Text = playingCard.ToString();
+                if (board.ComparingCard1 != null)
+                    board.ComparingCard1.Border.Background = Board.DEFAULT_CARD_BRUSH;
             }
         }
 
@@ -107,19 +109,19 @@ namespace ProyectoJuegoParejas
             if(!quit && !onDelay)    
             {
                 numMovements++;
-                if (gameBoard.ComparingCard1 == null || gameBoard.ComparingCard2 == null)
+                if (board.ComparingCard1 == null || board.ComparingCard2 == null)
                 {
-                    PlayingCard selectedPlayingCard = gameBoard[(Border)sender];
+                    PlayingCard selectedPlayingCard = board[(Border)sender];
 
                     selectedPlayingCard.Border.Background = Brushes.White;
                     selectedPlayingCard.FrontCard.Text = selectedPlayingCard.FrontCard.Tag.ToString();
                     if (!selectedPlayingCard.IsFlipped)
                     {
-                        if (gameBoard.ComparingCard1 != null && gameBoard.ComparingCard1 != selectedPlayingCard)
+                        if (board.ComparingCard1 != null && board.ComparingCard1 != selectedPlayingCard)
                         {
-                            gameBoard.ComparingCard2 = selectedPlayingCard;
+                            board.ComparingCard2 = selectedPlayingCard;
 
-                            if (gameBoard.ComparingCard1.FrontCard.Tag.ToString() != gameBoard.ComparingCard2.FrontCard.Tag.ToString())
+                            if (board.ComparingCard1.FrontCard.Tag.ToString() != board.ComparingCard2.FrontCard.Tag.ToString())
                             {
                                 int delaySeconds = 1;
                                 onDelay = true;
@@ -147,7 +149,7 @@ namespace ProyectoJuegoParejas
                             }
                         }
                         else
-                            gameBoard.ComparingCard1 = selectedPlayingCard;
+                            board.ComparingCard1 = selectedPlayingCard;
                     }
                 }
             }
@@ -155,28 +157,28 @@ namespace ProyectoJuegoParejas
 
         private void UnflipCards()  // Resets flipped cards into its default values 
         {
-            gameBoard.ComparingCard1.FrontCard.Text = Board.INTERROGATION_SIGN.ToString();
-            gameBoard.ComparingCard1.Border.Background = Board.DEFAULT_CARD_BRUSH;
+            board.ComparingCard1.FrontCard.Text = Board.INTERROGATION_SIGN.ToString();
+            board.ComparingCard1.Border.Background = Board.DEFAULT_CARD_BRUSH;
 
-            gameBoard.ComparingCard2.FrontCard.Text = Board.INTERROGATION_SIGN.ToString();
-            gameBoard.ComparingCard2.Border.Background = Board.DEFAULT_CARD_BRUSH;
+            board.ComparingCard2.FrontCard.Text = Board.INTERROGATION_SIGN.ToString();
+            board.ComparingCard2.Border.Background = Board.DEFAULT_CARD_BRUSH;
 
             ResetComparison();
         }
 
         private void ResetComparison()  // Reset the CardComparer 
         {
-            gameBoard.ComparingCard1 = null;
-            gameBoard.ComparingCard2 = null;
+            board.ComparingCard1 = null;
+            board.ComparingCard2 = null;
         }
 
         private void CheckState()   // Evaluate game state and set flipped twin playing cards into true 
         {
-            gameBoard.ComparingCard1.IsFlipped = true;
-            gameBoard.ComparingCard2.IsFlipped = true;
+            board.ComparingCard1.IsFlipped = true;
+            board.ComparingCard2.IsFlipped = true;
 
             int numIncorrect = 0;
-            int numCorrect = gameBoard.Count(c =>
+            int numCorrect = board.Count(c =>
             {
                 if (c.IsFlipped)
                     return true;

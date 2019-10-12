@@ -19,8 +19,9 @@ namespace ProyectoJuegoParejas
 
         List<PlayingCard> playingCards = new List<PlayingCard>();
 
-        public void RenderBoard(MainWindow windowGame, Grid gameGrid, int columnLength, List<char> randomCharacters)
+        public void RenderBoard(MainWindow windowGame, Grid gameGrid, List<char> randomCharacters)
         {
+            int columnLength = (int)Math.Sqrt(randomCharacters.Count);
             this.windowGame = windowGame;
             playingCards = new List<PlayingCard>();
 

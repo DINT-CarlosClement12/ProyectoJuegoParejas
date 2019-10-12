@@ -8,9 +8,7 @@
         <Style TargetType="{x:Type Button}">
             <Setter Property="Effect">
                 <Setter.Value>
-                    <DropShadowEffect BlurRadius="5"
-                              ShadowDepth="5"
-                              RenderingBias="Quality"/>
+                    <DropShadowEffect BlurRadius="5" ShadowDepth="5" RenderingBias="Quality"/>
                 </Setter.Value>
             </Setter>
         </Style>
