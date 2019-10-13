@@ -11,6 +11,7 @@ namespace ProyectoJuegoParejas
     public partial class MainWindow : Window
     {
         const int NUM_POSSIBLE_REPETITIONS = 2; // Number of cards of the same type
+        const int DELAY_SECONDS = 1;
 
         public bool onDelay = false;    // When two distinct cards are flipped
         public bool quit = false;    // When player give up or winds
@@ -54,18 +55,6 @@ namespace ProyectoJuegoParejas
             return randomCharacters;
         }
             
-        private void ResetGame()    // Reset game each time that we draw the scene 
-        {
-            quit = false;
-            numMovements = 0;
-            ResetComparison();
-            gameGrid.Children.Clear();
-            gameGrid.RowDefinitions.Clear();
-            gameGrid.ColumnDefinitions.Clear();
-            currentProgress.Value = 0;
-            currentProgress.Foreground = Brushes.LightGreen;
-        }
-
         private ProgressBar AddControls()  // Set common controls to the scene 
         {
             ((DockPanel)giveUpBorder.Child).Children.Clear();
@@ -91,6 +80,18 @@ namespace ProyectoJuegoParejas
             ((DockPanel)giveUpBorder.Child).Children.Add(gameProgress);
 
             return gameProgress;
+        }
+
+        private void ResetGame()    // Reset game each time that we draw the scene 
+        {
+            quit = false;
+            numMovements = 0;
+            ResetComparison();
+            gameGrid.Children.Clear();
+            gameGrid.RowDefinitions.Clear();
+            gameGrid.ColumnDefinitions.Clear();
+            currentProgress.Value = 0;
+            currentProgress.Foreground = Brushes.LightGreen;
         }
 
         private void ShowAnswer_Click(object sender, RoutedEventArgs e) // Controls give up option 
@@ -125,7 +126,7 @@ namespace ProyectoJuegoParejas
 
                             if (board.ComparingCard1.FrontCard.Tag.ToString() != board.ComparingCard2.FrontCard.Tag.ToString())
                             {
-                                int delaySeconds = 1;
+                                int delaySeconds = DELAY_SECONDS;
                                 onDelay = true;
                                 DispatcherTimer timer = new DispatcherTimer
                                 {
@@ -205,7 +206,7 @@ namespace ProyectoJuegoParejas
             if (!onDelay)   // Only initializes when is no delay. Prevents setting default values errors
             {
                 RadioButton radioButtonSelected = radioButtonContainer.Children.Cast<RadioButton>().Single(r => r.IsChecked == true);   // Get what RadioButton is checked
-                DrawGame((int)Math.Pow(double.Parse(radioButtonSelected.Tag.ToString()), 2));   // Calculus to avoid making a vaiable or call "radioButtonSelected.Tag.ToString()" twice. Tag is number of playing cards
+                DrawGame((int)Math.Pow(double.Parse(radioButtonSelected.Tag.ToString()), 2));   // Calculus to avoid making a vaiable or call "radioButtonSelected.Tag.ToString()" twice. Tag^2 is number of playing cards
             }
         }
     }

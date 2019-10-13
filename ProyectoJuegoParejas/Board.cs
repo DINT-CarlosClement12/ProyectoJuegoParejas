@@ -9,6 +9,9 @@ namespace ProyectoJuegoParejas
 {
     class Board : IEnumerable<PlayingCard>
     {
+        const string FONT_FAMILY_CARD_SYMBOLS = "Webdings";
+        const string PLAYING_CARDS_STYLE = "PlayingCard";
+
         public PlayingCard ComparingCard1 { get; set; }
         public PlayingCard ComparingCard2 { get; set; }
 
@@ -62,7 +65,7 @@ namespace ProyectoJuegoParejas
 
             TextBlock frontCard = new TextBlock // Where character sign is going to be draw 
             {
-                FontFamily = new FontFamily("Webdings"),
+                FontFamily = new FontFamily(FONT_FAMILY_CARD_SYMBOLS),
                 Tag = randomCharacters[currentIndexChar].ToString(),    // The value of the playing card
                 Text = INTERROGATION_SIGN.ToString()
             };
@@ -72,7 +75,7 @@ namespace ProyectoJuegoParejas
             };
             Border border = new Border  // To get color to background of the playing card
             {
-                Style = windowGame.FindResource("PlayingCard") as Style,
+                Style = windowGame.FindResource(PLAYING_CARDS_STYLE) as Style,
                 Background = DEFAULT_CARD_BRUSH,
                 Child = viewbox
             };
