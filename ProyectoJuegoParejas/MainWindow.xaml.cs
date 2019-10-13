@@ -13,7 +13,7 @@ namespace ProyectoJuegoParejas
         const int NUM_POSSIBLE_REPETITIONS = 2; // Number of cards of the same type
 
         public bool onDelay = false;    // When two distinct cards are flipped
-        public bool quit = false;    // When player give up
+        public bool quit = false;    // When player give up or winds
         public int numMovements = 0;    // Count player movements
         internal Board board = new Board(); // Storage data
 
@@ -63,6 +63,7 @@ namespace ProyectoJuegoParejas
             gameGrid.RowDefinitions.Clear();
             gameGrid.ColumnDefinitions.Clear();
             currentProgress.Value = 0;
+            currentProgress.Foreground = Brushes.LightGreen;
         }
 
         private ProgressBar AddControls()  // Set common controls to the scene 
@@ -94,13 +95,14 @@ namespace ProyectoJuegoParejas
 
         private void ShowAnswer_Click(object sender, RoutedEventArgs e) // Controls give up option 
         {
-            if (!onDelay)   // If we are on delay we cannot surrender
+            if (!onDelay && !quit)   // If we are on delay we cannot surrender
             {
                 quit = true;
                 foreach (PlayingCard playingCard in board)
                     playingCard.FrontCard.Text = playingCard.ToString();
                 if (board.ComparingCard1 != null)
                     board.ComparingCard1.Border.Background = Board.DEFAULT_CARD_BRUSH;
+                currentProgress.Foreground = Brushes.IndianRed;
             }
         }
 
@@ -192,7 +194,10 @@ namespace ProyectoJuegoParejas
             currentProgress.Value = (double)numCorrect / (numIncorrect + numCorrect);  // Set value of the progress
 
             if (numIncorrect <= 0)   // End game
+            {
+                quit = true;
                 MessageBox.Show($"Felicidades, has completado el nivel en {numMovements / 2} movimientos", "Memo te felicita");
+            }
         }
 
         private void InitButton_Click(object sender, RoutedEventArgs e) // Game initialitation 
