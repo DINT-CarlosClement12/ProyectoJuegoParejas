@@ -11,10 +11,10 @@
             <WrapPanel Margin="5">
                 <TextBlock x:Name="difficultyTextBlock">Dificultad:</TextBlock>
                 <DockPanel x:Name="radioButtonContainer" Margin="10,0,50,0">
-                    <RadioButton x:Name="lowDifficultyRadioButton" Tag="4">Baja</RadioButton>
-                    <RadioButton x:Name="mediumDifficultyRadioButton" IsChecked="True" Tag="6">Media</RadioButton>
-                    <RadioButton x:Name="hardDifficultyRadioButton" Tag="8">Alta</RadioButton>
-                    <RadioButton x:Name="debugDifficultyRadioButton" Tag="2" Visibility="Collapsed">Debug</RadioButton><!--Debug only-->
+                    <RadioButton x:Name="lowDifficultyRadioButton" Tag="3">Baja</RadioButton>
+                    <RadioButton x:Name="mediumDifficultyRadioButton" IsChecked="True" Tag="4">Media</RadioButton>
+                    <RadioButton x:Name="hardDifficultyRadioButton" Tag="5">Alta</RadioButton>
+                    <RadioButton x:Name="debugDifficultyRadioButton" Tag="1" Visibility="Collapsed">Debug</RadioButton><!--Debug only-->
                 </DockPanel>
                 <Button x:Name="initButton" Click="InitButton_Click">Iniciar</Button>
             </WrapPanel>

@@ -15,22 +15,25 @@ namespace ProyectoJuegoParejas
         public PlayingCard ComparingCard1 { get; set; }
         public PlayingCard ComparingCard2 { get; set; }
 
-        public static char INTERROGATION_SIGN = 's';    // Interrogation sign in "Webdings"
-        public static LinearGradientBrush DEFAULT_CARD_BRUSH = new LinearGradientBrush(Colors.CadetBlue, Colors.White, new Point(0, 1), new Point(0, 0)); // Cards reverse color
+        public const char INTERROGATION_SIGN = 's';    // Interrogation sign in "Webdings"
+        public readonly static LinearGradientBrush DEFAULT_CARD_BRUSH = new LinearGradientBrush(Colors.CadetBlue, Colors.White, new Point(0, 1), new Point(0, 0)); // Cards reverse color
 
         MainWindow windowGame = null;
 
         List<PlayingCard> playingCards = new List<PlayingCard>();
 
-        public void RenderBoard(MainWindow windowGame, Grid gameGrid, List<char> randomCharacters)
+        public void RenderBoard(MainWindow windowGame, Grid gameGrid, List<char> randomCharacters, int fixedWidth)
         {
-            int columnLength = (int)Math.Sqrt(randomCharacters.Count);
+            int heigth = randomCharacters.Count / fixedWidth;
+            int width = fixedWidth;
+
             this.windowGame = windowGame;
             playingCards = new List<PlayingCard>();
 
             // Set playing cards to the scene
+            bool columnSet = false;
             Random rnd = new Random();
-            for (int i = 0; i < columnLength; i++)
+            for (int i = 0; i < heigth; i++)
             {
                 RowDefinition rowDefinition = new RowDefinition
                 {
@@ -38,14 +41,16 @@ namespace ProyectoJuegoParejas
                 };
                 gameGrid.RowDefinitions.Add(rowDefinition);
 
-                ColumnDefinition columnDefinition = new ColumnDefinition
+                for (int j = 0; j < width; j++)
                 {
-                    Width = new GridLength(1, GridUnitType.Star)
-                };
-                gameGrid.ColumnDefinitions.Add(columnDefinition);
-
-                for (int j = 0; j < columnLength; j++)
-                {
+                    if (!columnSet)
+                    {
+                        ColumnDefinition columnDefinition = new ColumnDefinition
+                        {
+                            Width = new GridLength(1, GridUnitType.Star)
+                        };
+                        gameGrid.ColumnDefinitions.Add(columnDefinition);
+                    }
                     PlayingCard playingCard = CreatePlayingCard(randomCharacters, rnd);
 
                     Border border = playingCard.Border;
@@ -56,6 +61,7 @@ namespace ProyectoJuegoParejas
                     gameGrid.Children.Add(border);
                     playingCards.Add(playingCard);
                 }
+                columnSet = true;
             }
         }
 

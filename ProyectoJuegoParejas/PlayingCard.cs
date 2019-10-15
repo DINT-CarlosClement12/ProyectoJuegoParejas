@@ -2,7 +2,11 @@
 
 namespace ProyectoJuegoParejas
 {
+#pragma warning disable CS0659 // El tipo reemplaza a Object.Equals(object o), pero no reemplaza a Object.GetHashCode()
+#pragma warning disable S1206 // "Equals(Object)" and "GetHashCode()" should be overridden in pairs
     class PlayingCard
+#pragma warning restore S1206 // "Equals(Object)" and "GetHashCode()" should be overridden in pairs
+#pragma warning restore CS0659 // El tipo reemplaza a Object.Equals(object o), pero no reemplaza a Object.GetHashCode()
     {
         public TextBlock FrontCard { get; private set; }
         public Viewbox Viewbox { get; private set; }
@@ -28,11 +32,6 @@ namespace ProyectoJuegoParejas
         public override string ToString()
         {
             return FrontCard.Tag.ToString();
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
         }
     }
 }

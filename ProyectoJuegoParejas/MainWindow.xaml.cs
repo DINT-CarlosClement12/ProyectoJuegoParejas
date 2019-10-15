@@ -12,10 +12,11 @@ namespace ProyectoJuegoParejas
     {
         const int NUM_POSSIBLE_REPETITIONS = 2; // Number of cards of the same type
         const int DELAY_SECONDS = 1;
+        const int DEFAULT_WIDTH = 4;
 
-        public bool onDelay = false;    // When two distinct cards are flipped
-        public bool quit = false;    // When player give up or winds
-        public int numMovements = 0;    // Count player movements
+        private bool onDelay = false;    // When two distinct cards are flipped
+        private bool quit = false;    // When player give up or winds
+        private int numMovements = 0;    // Count player movements
         internal Board board = new Board(); // Storage data
 
         ProgressBar currentProgress;
@@ -29,25 +30,24 @@ namespace ProyectoJuegoParejas
             currentProgress = AddControls();
         }
         
-        private void DrawGame(int totalPlayingCards)    // Initialize the game 
+        private void DrawGame(int fixedHeight, int fixedWidth)    // Initialize the game 
         {
             ResetGame();
 
-            int columnLength = (int)Math.Sqrt(totalPlayingCards);   // Calculus based on how many cards are going to be in the scene
-            board.RenderBoard(this, gameGrid, GenerateCardCharacters(columnLength));
+            board.RenderBoard(this, gameGrid, GenerateCardCharacters(fixedHeight * NUM_POSSIBLE_REPETITIONS), fixedWidth);
         }
 
         private List<char> GenerateCardCharacters(int columnLength)   // Generates the signs of the playing cards 
         {
             List<char> randomCharacters = new List<char>();
             Random rnd = new Random();
-            for (int i = 0; i < columnLength * columnLength / NUM_POSSIBLE_REPETITIONS; i++)
+            for (int i = 0; i < columnLength * NUM_POSSIBLE_REPETITIONS / NUM_POSSIBLE_REPETITIONS; i++)
             {
                 char actualChar = rnd.Next(0, 2) == 0 ? (char)rnd.Next('A', 'Z') : (char)rnd.Next('a', 'z');    // 49 possible characters ('s' doesn't count)
                 if (randomCharacters.Contains(actualChar) || actualChar == Board.INTERROGATION_SIGN)
                 {
                     i--;        // _ If random character is already inside
-                    continue;   // |_   or is 's', move back one
+                    continue;   // |_   or it's 's', move back one
                 }
                 for (int j = 0; j < NUM_POSSIBLE_REPETITIONS; j++)  // Add character to the list as many times as repetitions
                     randomCharacters.Add(actualChar);
@@ -100,9 +100,12 @@ namespace ProyectoJuegoParejas
             {
                 quit = true;
                 foreach (PlayingCard playingCard in board)
+                {
                     playingCard.FrontCard.Text = playingCard.ToString();
+                    playingCard.Border.Background = Brushes.NavajoWhite;
+                }
                 if (board.ComparingCard1 != null)
-                    board.ComparingCard1.Border.Background = Board.DEFAULT_CARD_BRUSH;
+                    board.ComparingCard1.Border.Background = Brushes.NavajoWhite;
                 currentProgress.Foreground = Brushes.IndianRed;
             }
         }
@@ -136,7 +139,7 @@ namespace ProyectoJuegoParejas
                                 timer.Tick += delegate
                                 {
                                     delaySeconds--;
-                                    if (delaySeconds == 0 || onDelay == false)
+                                    if (delaySeconds == 0)
                                     {
                                         timer.Stop();
                                         UnflipCards();  // Timer ended and playing cards flip again
@@ -206,7 +209,15 @@ namespace ProyectoJuegoParejas
             if (!onDelay)   // Only initializes when is no delay. Prevents setting default values errors
             {
                 RadioButton radioButtonSelected = radioButtonContainer.Children.Cast<RadioButton>().Single(r => r.IsChecked == true);   // Get what RadioButton is checked
-                DrawGame((int)Math.Pow(double.Parse(radioButtonSelected.Tag.ToString()), 2));   // Calculus to avoid making a vaiable or call "radioButtonSelected.Tag.ToString()" twice. Tag^2 is number of playing cards
+                                                                                                                                        
+#if DEBUG
+                if(radioButtonSelected.Tag.ToString() == "1")
+                    DrawGame(int.Parse(radioButtonSelected.Tag.ToString()), NUM_POSSIBLE_REPETITIONS);
+                else
+                    DrawGame(int.Parse(radioButtonSelected.Tag.ToString()), DEFAULT_WIDTH);
+#else
+                DrawGame(int.Parse(radioButtonSelected.Tag.ToString()), DEFAULT_WIDTH);   
+#endif
             }
         }
     }
