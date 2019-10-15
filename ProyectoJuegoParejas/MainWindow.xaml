@@ -5,10 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ProyectoJuegoParejas"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <DockPanel Background="BlanchedAlmond" LastChildFill="False">
-        <Border DockPanel.Dock="Top" Margin="5" BorderBrush="Black" BorderThickness="4" CornerRadius="5" Background="White">
-            <WrapPanel Margin="5">
+        Title="MainWindow" Height="450" Width="800" MinWidth="500" MinHeight="500">
+    <DockPanel x:Name="mainDockPanel" Background="BlanchedAlmond" LastChildFill="False">
+        <Border x:Name="gameSelectorBorder" DockPanel.Dock="Top" Margin="5" BorderBrush="Black" BorderThickness="4" CornerRadius="5" Background="White">
+            <WrapPanel x:Name="gameSelectorWrapPanel" Margin="5">
                 <TextBlock x:Name="difficultyTextBlock">Dificultad:</TextBlock>
                 <DockPanel x:Name="radioButtonContainer" Margin="10,0,50,0">
                     <RadioButton x:Name="lowDifficultyRadioButton" Tag="3">Baja</RadioButton>
@@ -21,11 +21,8 @@
         </Border>
 
         <Border x:Name="giveUpBorder" DockPanel.Dock="Bottom"  Margin="5" BorderBrush="Black" BorderThickness="4" CornerRadius="5" Background="White" Padding="5">
-            <DockPanel>
-                
-            </DockPanel>
+            <DockPanel x:Name="giveUpDockPanel"/>
         </Border>
-
         <Grid x:Name="gameGrid" DockPanel.Dock="Top"/>
     </DockPanel>
 </Window>

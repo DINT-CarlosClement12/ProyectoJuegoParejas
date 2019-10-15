@@ -45,6 +45,7 @@
             <Setter Property="BorderBrush" Value="Black"/>
             <Setter Property="BorderThickness" Value="5"/>
             <Setter Property="CornerRadius" Value="5"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
         </Style>
 
     </Application.Resources>
