@@ -30,9 +30,12 @@ namespace ProyectoJuegoParejas
             currentProgress = AddControls();
         }
         
-        private void DrawGame(int fixedHeight, int fixedWidth)    // Initialize the game 
+        private void DrawGame(int fixedHeight, int fixedWidth)    // Initializes the game 
         {
             ResetGame();
+
+            if ((fixedHeight * fixedWidth) % 2 != 0)
+                throw new ArgumentException($"Total number of playing cards cannot be odd: {fixedHeight * fixedWidth}");
 
             board.RenderBoard(this, gameGrid, GenerateCardCharacters(fixedHeight * NUM_POSSIBLE_REPETITIONS), fixedWidth);
         }
@@ -68,14 +71,8 @@ namespace ProyectoJuegoParejas
             DockPanel.SetDock(giveUpButton, Dock.Right);
 
             ((DockPanel)giveUpBorder.Child).Children.Add(giveUpButton);
-            ProgressBar gameProgress = new ProgressBar()
-            {
-                Minimum = 0,
-                Maximum = 1,
-                Value = 0,
-                BorderThickness = new Thickness(5),
-                Margin = new Thickness(5)
-            };
+            ProgressBar gameProgress = new ProgressBar();
+
             DockPanel.SetDock(gameProgress, Dock.Left);
             ((DockPanel)giveUpBorder.Child).Children.Add(gameProgress);
 
@@ -143,7 +140,7 @@ namespace ProyectoJuegoParejas
                                     {
                                         timer.Stop();
                                         UnflipCards();  // Timer ended and playing cards flip again
-                                    onDelay = false;
+                                        onDelay = false;
                                     }
                                 };
                                 timer.Start();
@@ -172,7 +169,7 @@ namespace ProyectoJuegoParejas
             ResetComparison();
         }
 
-        private void ResetComparison()  // Reset the CardComparer 
+        private void ResetComparison()  // Reset the card comparer 
         {
             board.ComparingCard1 = null;
             board.ComparingCard2 = null;

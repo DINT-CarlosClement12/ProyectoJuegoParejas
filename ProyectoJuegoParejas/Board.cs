@@ -35,20 +35,14 @@ namespace ProyectoJuegoParejas
             Random rnd = new Random();
             for (int i = 0; i < heigth; i++)
             {
-                RowDefinition rowDefinition = new RowDefinition
-                {
-                    Height = new GridLength(1, GridUnitType.Star)
-                };
+                RowDefinition rowDefinition = new RowDefinition();
                 gameGrid.RowDefinitions.Add(rowDefinition);
 
                 for (int j = 0; j < width; j++)
                 {
                     if (!columnSet)
                     {
-                        ColumnDefinition columnDefinition = new ColumnDefinition
-                        {
-                            Width = new GridLength(1, GridUnitType.Star)
-                        };
+                        ColumnDefinition columnDefinition = new ColumnDefinition();
                         gameGrid.ColumnDefinitions.Add(columnDefinition);
                     }
                     PlayingCard playingCard = CreatePlayingCard(randomCharacters, rnd);
