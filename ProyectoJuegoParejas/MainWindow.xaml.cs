@@ -34,7 +34,7 @@ namespace ProyectoJuegoParejas
         {
             ResetGame();
 
-            if ((fixedHeight * fixedWidth) % 2 != 0)
+            if (fixedHeight * fixedWidth % 2 != 0)
                 throw new ArgumentException($"Total number of playing cards cannot be odd: {fixedHeight * fixedWidth}");
 
             board.RenderBoard(this, gameGrid, GenerateCardCharacters(fixedHeight, fixedWidth), fixedWidth);
@@ -55,7 +55,7 @@ namespace ProyectoJuegoParejas
                 char actualChar = possibleChars[actualIndex];
                 possibleChars.RemoveAt(actualIndex);
 
-                for (int j = 0; j < NUM_POSSIBLE_REPETITIONS; j++)  // Add character to the list as many times as repetitions
+                for (int j = 0; j < NUM_POSSIBLE_REPETITIONS; j++)  // Adds character to the list as many times as repetitions
                     randomCharacters.Add(actualChar);
             }
             return randomCharacters;
