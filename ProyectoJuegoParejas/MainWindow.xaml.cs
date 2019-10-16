@@ -27,7 +27,7 @@ namespace ProyectoJuegoParejas
             debugEasyDifficultyRadioButton.Visibility = Visibility.Visible;
             debugExtraHardDifficultyRadioButton.Visibility = Visibility.Visible;
 #endif
-            currentProgress = AddControls();
+            AddControls();
         }
         
         private void DrawGame(int fixedHeight, int fixedWidth)    // Initializes the game 
@@ -61,9 +61,11 @@ namespace ProyectoJuegoParejas
             return randomCharacters;
         }
             
-        private ProgressBar AddControls()  // Set common controls to the scene 
+        private void AddControls()  // Set common controls to the scene 
         {
-            ((DockPanel)giveUpBorder.Child).Children.Clear();
+
+            giveUpDockPanel = (DockPanel)giveUpBorder.Child;
+            giveUpDockPanel.Children.Clear();
             Button giveUpButton = new Button()
             {
                 Name = "giveUpButton",
@@ -73,13 +75,11 @@ namespace ProyectoJuegoParejas
             giveUpButton.Click += ShowAnswer_Click;
             DockPanel.SetDock(giveUpButton, Dock.Right);
 
-            ((DockPanel)giveUpBorder.Child).Children.Add(giveUpButton);
-            ProgressBar gameProgress = new ProgressBar();
+            giveUpDockPanel.Children.Add(giveUpButton);
+            currentProgress = new ProgressBar();
 
-            DockPanel.SetDock(gameProgress, Dock.Left);
-            ((DockPanel)giveUpBorder.Child).Children.Add(gameProgress);
-
-            return gameProgress;
+            DockPanel.SetDock(currentProgress, Dock.Left);
+            giveUpDockPanel.Children.Add(currentProgress);
         }
 
         private void ResetGame()    // Reset game each time that we draw the scene 
@@ -112,53 +112,52 @@ namespace ProyectoJuegoParejas
 
         public void FlipCard(object sender, RoutedEventArgs e) // Shows the playing card value 
         {
-            if(!quit && !onDelay)    
+            if (!quit && !onDelay && 
+                board.ComparingCard1 == null || board.ComparingCard2 == null)
             {
-                numMovements++;
-                if (board.ComparingCard1 == null || board.ComparingCard2 == null)
+                PlayingCard selectedPlayingCard = board[(Border)sender];
+
+                selectedPlayingCard.Border.Background = Brushes.White;
+                selectedPlayingCard.FrontCard.Text = selectedPlayingCard.FrontCard.Tag.ToString();
+                if (!selectedPlayingCard.IsFlipped)
                 {
-                    PlayingCard selectedPlayingCard = board[(Border)sender];
-
-                    selectedPlayingCard.Border.Background = Brushes.White;
-                    selectedPlayingCard.FrontCard.Text = selectedPlayingCard.FrontCard.Tag.ToString();
-                    if (!selectedPlayingCard.IsFlipped)
+                    numMovements++;
+                    if (board.ComparingCard1 != null && board.ComparingCard1 != selectedPlayingCard)
                     {
-                        if (board.ComparingCard1 != null && board.ComparingCard1 != selectedPlayingCard)
-                        {
-                            board.ComparingCard2 = selectedPlayingCard;
+                        board.ComparingCard2 = selectedPlayingCard;
 
-                            if (board.ComparingCard1.FrontCard.Tag.ToString() != board.ComparingCard2.FrontCard.Tag.ToString())
+                        if (board.ComparingCard1.FrontCard.Tag.ToString() != board.ComparingCard2.FrontCard.Tag.ToString())
+                        {
+                            int delaySeconds = DELAY_SECONDS;
+                            onDelay = true;
+                            DispatcherTimer timer = new DispatcherTimer
                             {
-                                int delaySeconds = DELAY_SECONDS;
-                                onDelay = true;
-                                DispatcherTimer timer = new DispatcherTimer
+                                IsEnabled = false,
+                                Interval = TimeSpan.FromMilliseconds(1000)
+                            };
+                            timer.Tick += delegate
+                            {
+                                delaySeconds--;
+                                if (delaySeconds == 0)
                                 {
-                                    IsEnabled = false,
-                                    Interval = TimeSpan.FromMilliseconds(1000)
-                                };
-                                timer.Tick += delegate
-                                {
-                                    delaySeconds--;
-                                    if (delaySeconds == 0)
-                                    {
-                                        timer.Stop();
-                                        UnflipCards();  // Timer ended and playing cards flip again
+                                    timer.Stop();
+                                    UnflipCards();  // Timer ended and playing cards flip again
                                         onDelay = false;
-                                    }
-                                };
-                                timer.Start();
-                            }
-                            else
-                            {
-                                CheckState();
-                                ResetComparison();
-                            }
+                                }
+                            };
+                            timer.Start();
                         }
                         else
-                            board.ComparingCard1 = selectedPlayingCard;
+                        {
+                            CheckState();
+                            ResetComparison();
+                        }
                     }
+                    else
+                        board.ComparingCard1 = selectedPlayingCard;
                 }
             }
+            
         }
 
         private void UnflipCards()  // Resets flipped cards into its default values 
