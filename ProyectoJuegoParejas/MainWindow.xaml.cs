@@ -12,7 +12,6 @@ namespace ProyectoJuegoParejas
     {
         const int NUM_POSSIBLE_REPETITIONS = 2; // Number of cards of the same type
         const int DELAY_SECONDS = 1;
-        const int DEFAULT_WIDTH = 4;
 
         private bool onDelay = false;    // When two distinct cards are flipped
         private bool quit = false;    // When player give up or winds
@@ -25,7 +24,8 @@ namespace ProyectoJuegoParejas
         {
             InitializeComponent();
 #if DEBUG
-            debugDifficultyRadioButton.Visibility = Visibility.Visible;
+            debugEasyDifficultyRadioButton.Visibility = Visibility.Visible;
+            debugExtraHardDifficultyRadioButton.Visibility = Visibility.Visible;
 #endif
             currentProgress = AddControls();
         }
@@ -37,21 +37,24 @@ namespace ProyectoJuegoParejas
             if ((fixedHeight * fixedWidth) % 2 != 0)
                 throw new ArgumentException($"Total number of playing cards cannot be odd: {fixedHeight * fixedWidth}");
 
-            board.RenderBoard(this, gameGrid, GenerateCardCharacters(fixedHeight * NUM_POSSIBLE_REPETITIONS), fixedWidth);
+            board.RenderBoard(this, gameGrid, GenerateCardCharacters(fixedHeight, fixedWidth), fixedWidth);
         }
 
-        private List<char> GenerateCardCharacters(int columnLength)   // Generates the signs of the playing cards 
+        private List<char> GenerateCardCharacters(int length, int width)   // Generates the signs of the playing cards 
         {
+            List<char> possibleChars = new List<char>("qwertyuiopadfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM".ToCharArray());
+
+            if (length * width / 2 > possibleChars.Count)
+                throw new ArgumentException($"Number of total cards ({length * width}) cannot be higher than {possibleChars.Count}");
+
             List<char> randomCharacters = new List<char>();
             Random rnd = new Random();
-            for (int i = 0; i < columnLength * NUM_POSSIBLE_REPETITIONS / NUM_POSSIBLE_REPETITIONS; i++)
+            for (int i = 0; i < length * width / 2; i++)
             {
-                char actualChar = rnd.Next(0, 2) == 0 ? (char)rnd.Next('A', 'Z') : (char)rnd.Next('a', 'z');    // 49 possible characters ('s' doesn't count)
-                if (randomCharacters.Contains(actualChar) || actualChar == Board.INTERROGATION_SIGN)
-                {
-                    i--;        // _ If random character is already inside
-                    continue;   // |_   or it's 's', move back one
-                }
+                int actualIndex = rnd.Next(0, possibleChars.Count);
+                char actualChar = possibleChars[actualIndex];
+                possibleChars.RemoveAt(actualIndex);
+
                 for (int j = 0; j < NUM_POSSIBLE_REPETITIONS; j++)  // Add character to the list as many times as repetitions
                     randomCharacters.Add(actualChar);
             }
@@ -206,15 +209,9 @@ namespace ProyectoJuegoParejas
             if (!onDelay)   // Only initializes when is no delay. Prevents setting default values errors
             {
                 RadioButton radioButtonSelected = radioButtonContainer.Children.Cast<RadioButton>().Single(r => r.IsChecked == true);   // Get what RadioButton is checked
-                                                                                                                                        
-#if DEBUG
-                if(radioButtonSelected.Tag.ToString() == "1")
-                    DrawGame(int.Parse(radioButtonSelected.Tag.ToString()), NUM_POSSIBLE_REPETITIONS);
-                else
-                    DrawGame(int.Parse(radioButtonSelected.Tag.ToString()), DEFAULT_WIDTH);
-#else
-                DrawGame(int.Parse(radioButtonSelected.Tag.ToString()), DEFAULT_WIDTH);   
-#endif
+
+                string tag = radioButtonSelected.Tag.ToString();
+                DrawGame(int.Parse(tag.Split('.')[0]), int.Parse(tag.Split('.')[1]));
             }
         }
     }

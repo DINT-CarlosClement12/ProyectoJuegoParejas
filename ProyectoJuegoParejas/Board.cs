@@ -61,7 +61,7 @@ namespace ProyectoJuegoParejas
 
         private PlayingCard CreatePlayingCard(List<char> randomCharacters, Random rnd)   // Initialize gaming card controls schema 
         {
-            int currentIndexChar = rnd.Next(0, randomCharacters.Count - 1);
+            int currentIndexChar = rnd.Next(0, randomCharacters.Count); // -1 ??
 
             TextBlock frontCard = new TextBlock // Where character sign is going to be draw 
             {
