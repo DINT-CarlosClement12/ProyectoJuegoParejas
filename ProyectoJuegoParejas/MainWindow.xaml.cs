@@ -12,13 +12,12 @@ namespace ProyectoJuegoParejas
     {
         const int NUM_POSSIBLE_REPETITIONS = 2; // Number of cards of the same type
         const int DELAY_SECONDS = 1;
+        const char GAME_SELECTOR_WIDTH_PER_HEIGHT_SEPARATOR = '.';
 
         private bool onDelay = false;    // When two distinct cards are flipped
         private bool quit = false;    // When player give up or winds
         private int numMovements = 0;    // Count player movements
         internal Board board = new Board(); // Storage data
-
-        ProgressBar currentProgress;
 
         public MainWindow()
         {
@@ -26,8 +25,8 @@ namespace ProyectoJuegoParejas
 #if DEBUG
             debugEasyDifficultyRadioButton.Visibility = Visibility.Visible;
             debugExtraHardDifficultyRadioButton.Visibility = Visibility.Visible;
+            mainWindow.MinWidth = 700;
 #endif
-            AddControls();
         }
         
         private void DrawGame(int fixedHeight, int fixedWidth)    // Initializes the game 
@@ -59,27 +58,6 @@ namespace ProyectoJuegoParejas
                     randomCharacters.Add(actualChar);
             }
             return randomCharacters;
-        }
-            
-        private void AddControls()  // Set common controls to the scene 
-        {
-
-            giveUpDockPanel = (DockPanel)giveUpBorder.Child;
-            giveUpDockPanel.Children.Clear();
-            Button giveUpButton = new Button()
-            {
-                Name = "giveUpButton",
-                Margin = new Thickness(50, 0, 10, 0),
-                Content = "Mostrar"
-            };
-            giveUpButton.Click += ShowAnswer_Click;
-            DockPanel.SetDock(giveUpButton, Dock.Right);
-
-            giveUpDockPanel.Children.Add(giveUpButton);
-            currentProgress = new ProgressBar();
-
-            DockPanel.SetDock(currentProgress, Dock.Left);
-            giveUpDockPanel.Children.Add(currentProgress);
         }
 
         private void ResetGame()    // Reset game each time that we draw the scene 
@@ -113,7 +91,7 @@ namespace ProyectoJuegoParejas
         public void FlipCard(object sender, RoutedEventArgs e) // Shows the playing card value 
         {
             if (!quit && !onDelay && 
-                board.ComparingCard1 == null || board.ComparingCard2 == null)
+                (board.ComparingCard1 == null || board.ComparingCard2 == null))
             {
                 PlayingCard selectedPlayingCard = board[(Border)sender];
 
@@ -138,11 +116,11 @@ namespace ProyectoJuegoParejas
                             timer.Tick += delegate
                             {
                                 delaySeconds--;
-                                if (delaySeconds == 0)
+                                if (delaySeconds <= 0)
                                 {
                                     timer.Stop();
                                     UnflipCards();  // Timer ended and playing cards flip again
-                                        onDelay = false;
+                                    onDelay = false;
                                 }
                             };
                             timer.Start();
@@ -210,7 +188,8 @@ namespace ProyectoJuegoParejas
                 RadioButton radioButtonSelected = radioButtonContainer.Children.Cast<RadioButton>().Single(r => r.IsChecked == true);   // Get what RadioButton is checked
 
                 string tag = radioButtonSelected.Tag.ToString();
-                DrawGame(int.Parse(tag.Split('.')[0]), int.Parse(tag.Split('.')[1]));
+                DrawGame(   int.Parse(tag.Split(GAME_SELECTOR_WIDTH_PER_HEIGHT_SEPARATOR)[0]),      // Index 0 is width
+                            int.Parse(tag.Split(GAME_SELECTOR_WIDTH_PER_HEIGHT_SEPARATOR)[1]));     // Index 1 is height
             }
         }
     }
